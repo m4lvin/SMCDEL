@@ -519,6 +519,38 @@ instance Update MultipointedKnowScene MultipointedEvent where
 
 -- TODO instance Update KnowScene MultipointedEvent
 
+-- * Alternative Model Checking Algorithm
+
+-- | An alternative model checking algorithm.
+-- Only works for PAL, no other dynamics.
+-- NOTE: the list contains announcements in order, i.e. newest as last element.
+checkPAL :: KnowStruct -> State -> [Form] -> Form -> Bool
+checkPAL kns@(KnS _ _ obs) s l phi = case phi of
+  Top -> True
+  Bot -> False
+  (PrpF p) -> p `elem` s
+  (Neg f) -> not (checkPAL kns s l f)
+  (Conj fs) -> all (checkPAL kns s l) fs
+  (Disj fs) -> any (checkPAL kns s l) fs
+  (Xor  fs) -> odd $ length (filter id $ map (checkPAL kns s l) fs)
+  (Impl f g) -> not (checkPAL kns s l f) || checkPAL kns s l g
+  (Equi f g) -> checkPAL kns s l f == checkPAL kns s l g
+  (Kw a f) -> any (checkPAL kns s l) [K a f, K a (Neg f)]
+  (K i f) -> all
+    (\t -> not (stillExists kns l t) || checkPAL kns t l f)
+    (filter (\t -> (t `intersect` (obs ! i)) `seteq` (s `intersect` (obs ! i))) (statesOf kns))
+  (PubAnnounce af f) ->
+    not (checkPAL kns s l af) || checkPAL kns s (l ++ [af]) f
+  f -> error $ "does not work for this formula: " ++ ppForm f
+
+-- | Helper function for the `K` case in `checkPAL`.
+stillExists :: KnowStruct -> [Form] -> State -> Bool
+stillExists _   [] _ = True
+stillExists kns l  s = stillExists kns (init l) s && checkPAL kns s (init l) (last l)
+
+evalViaCheckPAL :: KnowScene -> Form -> Bool
+evalViaCheckPAL (kns, s) = checkPAL kns s []
+
 -- * LaTeX functions
 -- $
 -- We provide helper functions to generate \LaTeX\ code that shows
