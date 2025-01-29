@@ -80,6 +80,10 @@ findNumberCacBDD :: Int -> Int -> Int
 findNumberCacBDD = findNumberWith (cacMudScnInit,SMCDEL.Symbolic.S5.evalViaBdd) where
   cacMudScnInit n m = ( SMCDEL.Symbolic.S5.KnS (mudPs n) (SMCDEL.Symbolic.S5.boolBddOf Top) [ (show i,delete (P i) (mudPs n)) | i <- [1..n] ], mudPs m )
 
+findNumberCheckPAL :: Int -> Int -> Int
+findNumberCheckPAL = findNumberWith (cacMudScnInit,SMCDEL.Symbolic.S5.evalViaCheckPAL) where
+  cacMudScnInit n m = ( SMCDEL.Symbolic.S5.KnS (mudPs n) (SMCDEL.Symbolic.S5.boolBddOf Top) [ (show i,delete (P i) (mudPs n)) | i <- [1..n] ], mudPs m )
+
 findNumberDD :: Int -> Int -> Int
 findNumberDD = findNumberWith (ddMudScnInit,SMCDEL.Symbolic.S5_DD.evalViaBdd) where
   ddMudScnInit n m = ( SMCDEL.Symbolic.S5_DD.KnS (mudPs n) (SMCDEL.Symbolic.S5_DD.boolBddOf Top) [ (show i,delete (P i) (mudPs n)) | i <- [1..n] ], mudPs m )
@@ -171,6 +175,7 @@ benchMain = do
   defaultMainWith myConfig (map mybench
     [ ("Triangle"  , findNumberTriangle  , [7..40] )
     , ("CacBDD"    , findNumberCacBDD    , [3..40] )
+    , ("checkPAL"  , findNumberCheckPAL  , [3..5] )
 #ifdef WITH_CUDD
     , ("CUDD"      , findNumberCUDD mgr  , [3..40] )
     , ("CUDDz"     , findNumberCUDDz mgr , [3..40] )
