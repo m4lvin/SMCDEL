@@ -11,10 +11,8 @@ clean:
 	find src/ -iname *.hi -type f -print | xargs /bin/rm -f
 	find src/ -iname *.o -type f -print | xargs /bin/rm -f
 
-MCBENCHMARKS = Triangle CacBDD DD CUDD CUDDz K DEMOS5 Trans TransK
-
 bench/muddychildren.pdf: Makefile bench/muddychildren.hs bench/muddychildren.tex
-	stack bench :bench-muddychildren --benchmark-arguments "$(MCBENCHMARKS) --csv bench/muddychildren-results.csv"
+	stack bench :bench-muddychildren --benchmark-arguments "--csv bench/muddychildren-results.csv"
 	cd bench && latexmk -pdf -quiet -interaction=nonstopmode muddychildren
 
 todo:
