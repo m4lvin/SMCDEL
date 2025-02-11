@@ -25,7 +25,7 @@ class TagForBDDs a where
   cp = cpMany 1
   -- | Move into extended vocabulary, add k many markers, MUST be available!
   cpMany :: Int -> Bdd -> Tagged a Bdd
-  cpMany k b = let x = pure $ relabelFun (\n -> (2*n) + k) b
+  cpMany k b = let x = pure $ relabelFun (\n -> (multiplier x * n) + k) b
                 in if k >= multiplier x then error "Not enough markers!" else x
 
   -- | Evaluate a tagged BDD.
