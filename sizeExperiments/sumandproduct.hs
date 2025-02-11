@@ -58,7 +58,7 @@ gatherSizeData ns = do
       ]
     linesFor n = do
       putStrLn $ "Running for n = " ++ show n
-      results <- mapM (($ n) . snd) variants
+      results <- mapM (`snd` n) variants
       appendFile "sap.dat" $ unlines $
         [ intercalate "\t" (show n : show k : map (\xs -> show (xs !! k)) results)
         | k <- [0..3] ]
